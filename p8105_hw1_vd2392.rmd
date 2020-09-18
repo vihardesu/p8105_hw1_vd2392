@@ -1,28 +1,74 @@
 ---
 title: "p8105_hw1_vd2392"
+author: "Vihar Desu"
 output: html_document
 ---
-
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+### Imports
+```{r}
+library(tidyverse)
+library(ggplot2)
 ```
 
-## R Markdown
-
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
+### Problem 1: Constructing Data Frame
+```{r dataframe}
+df <- tibble(
+  samp = rnorm(10),
+  samp_gt_0 = samp > 0,
+  character_vec = c("a", "b", "c", "d", "e", "f", "g", "h", "i", "j"),
+  factor_vec = c("low", "low", "low", "med", "med", "med", "high", "high", "high", "high")
+)
 ```
 
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
+### Problem 1: Taking Means
+Prompt: Try to take the mean of each variable in your data frame. What works and what doesn’t?
+Answer: While the random normal vector and the boolean vector return numerical values, the character and factor vector throw errors.
+```{r means}
+mean(pull(df, samp)) #Works
+mean(pull(df, samp_gt_0)) #Works
+mean(pull(df, character_vec)) #Error: argument is not numeric or logical: returning NA[1] NA
+mean(pull(df, factor_vec)) #Error: argument is not numeric or logical: returning NA[1] NA
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+### Problem 1: Typing Vectors
+Prompt: Type the vectors to numeric values
+Answer: The character and factor vectors can not be coerced conveniently. NAs are introduced by coercion. There is a type mismatch that does not work.
+```{r typing}
+as.numeric(pull(df, samp))
+as.numeric(pull(df, samp_gt_0))
+as.numeric(pull(df, character_vec))
+as.numeric(pull(df, factor_vec))
+
+```
+
+### Problem 1: Multiplication
+```{r multiplication}
+samp_gt_0_asfactor <- as.factor(pull(df, samp_gt_0))
+samp_gt_0_asnumeric <- as.numeric(pull(df, samp_gt_0))
+samp_gt_0_asfactor * pull(df, samp)
+samp_gt_0_asnumeric * pull(df, samp)
+as.numeric(samp_gt_0_asfactor) * pull(df, samp)
+```
+
+### Problem 2: Penguins Dataset
+The summary can be viewed below. 
+There are 344 rows.
+There are 8 columns.
+The mean of flipper length = 200.9.
+
+```{r penguins}
+data("penguins", package = "palmerpenguins")
+summary(penguins) #sisplays summary data
+nrow(penguins) #344
+ncol(penguins) #8
+mean(pull(penguins, flipper_length_mm), na.rm=TRUE) #200.9
+```
+
+### Problem 2: Scatterplot
+```{r scatterplot}
+scatterplot <- ggplot(penguins, aes(x = bill_length_mm, y = flipper_length_mm, color = species))
+final_plot <- scatterplot + geom_point()
+ggsave(device = "pdf", filename="scatterplot.pdf")
+```
+
+
+
